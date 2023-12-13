@@ -1,8 +1,9 @@
 const db = require('../../database');
 
 class CategoriesRepository {
-  async findAll() {
-    const rows = await db.query('SELECT * FROM categories ORDER BY name');
+  async findAll(orderBy = 'ASC') {
+    const direction = orderBy.toUpperCase === 'DESC' ? 'DESC' : 'ASC';
+    const rows = await db.query(`SELECT * FROM categories ORDER BY name ${direction}`);
     return rows;
   }
 
@@ -11,6 +12,14 @@ class CategoriesRepository {
       SELECT * FROM categories
       WHERE id = $1
     `, [id]);
+    return row;
+  }
+
+  async findByName(name) {
+    const [row] = await db.query(`
+      SELECT * FROM categories
+      WHERE name = $1
+    `, [name]);
     return row;
   }
 
@@ -31,6 +40,11 @@ class CategoriesRepository {
       RETURNING *
     `, [name, id]);
     return row;
+  }
+
+  async delete(id) {
+    const deleteOp = await db.query('DELETE FROM categories WHERE id = $1', [id]);
+    return deleteOp;
   }
 }
 

@@ -14,6 +14,12 @@ class CategoryController {
       return response.status(400).json({ error: 'Name is required' });
     }
 
+    const categoryExists = await CategoriesRepository.findByName(name);
+
+    if (categoryExists) {
+      return response.status(400).json({ error: 'This category already exists' });
+    }
+
     const category = await CategoriesRepository.create({ name });
 
     response.json(category);
@@ -38,7 +44,13 @@ class CategoryController {
     response.json(category);
   }
 
-  delete() {}
+  async delete(request, response) {
+    const { id } = request.params;
+
+    await CategoriesRepository.delete(id);
+
+    response.sendStatus(204);
+  }
 }
 
 module.exports = new CategoryController();
